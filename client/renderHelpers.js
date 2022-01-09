@@ -1,4 +1,4 @@
-import { fetchAllPlayers } from './ajaxHelpers';
+import { addNewPlayer, fetchAllPlayers, fetchSinglePlayer, removePlayer } from './ajaxHelpers';
 
 const playerContainer = document.getElementById('all-players-container');
 const newPlayerFormContainer = document.getElementById('new-player-form');
@@ -18,6 +18,7 @@ export const renderAllPlayers = (playerList) => {
       <div class="single-player-card">
         <div class="header-info">
           <p class="pup-title">${pup.name}</p>
+          <button class = "remove-info" data-id=${pup.id}>Remove</button>
           <p class="pup-number">#${pup.id}</p>
         </div>
         <img src="${pup.imageUrl}" alt="photo of ${pup.name} the puppy">
@@ -37,9 +38,19 @@ export const renderAllPlayers = (playerList) => {
   for (let i = 0; i < detailButtons.length; i++) {
     const button = detailButtons[i];
     button.addEventListener('click', async () => {
-      /*
-        YOUR CODE HERE
-      */
+      fetchSinglePlayer(button.dataset.id)
+      console.log(button.dataset.id);
+    });
+  }
+
+  let deleteBtn = document.getElementsByClassName("remove-info");
+  for (let j = 0; j < deleteBtn.length; j++) {
+    const deleteButton = deleteBtn[j];
+    deleteButton.addEventListener("click", async () => {
+      // console.log(deleteButton.dataset.id);
+    removePlayer(deleteButton.dataset.id);
+    const players = await fetchAllPlayers();
+    renderAllPlayers(players);
     });
   }
 };
@@ -66,7 +77,19 @@ export const renderSinglePlayer = (playerObj) => {
   `;
 
   playerContainer.innerHTML = pupHTML;
-};
+
+  // below is the code of back to all players
+  // let backPlayers = document.getElementById("see-all");
+  // backPlayers.addEventListener("click", () => {
+  //   const players = await fetchAllPlayers();
+  //   renderAllPlayers(players);
+
+  document.getElementById("see-all").addEventListener('click', async () => {
+    const players = await fetchAllPlayers();
+    renderAllPlayers(players);
+      })
+    };
+    
 
 export const renderNewPlayerForm = () => {
   let formHTML = `
@@ -82,8 +105,20 @@ export const renderNewPlayerForm = () => {
 
   let form = document.querySelector('#new-player-form > form');
   form.addEventListener('submit', async (event) => {
-    /*
-      YOUR CODE HERE
-    */
+    event.preventDefault()
+
+    let playerData = {
+      name: form.elements.name.value, //  name: document.querySelector('input[name=name]').value,
+      breed: form.elements.breed.value // breed: document.querySelector('input[name=breed]').value
+    }
+    addNewPlayer(playerData);
+
+  const players = await fetchAllPlayers();
+  renderAllPlayers(players);
+  
+  document.querySelector("input[name=name]").value = "";
+  document.querySelector("input[name=breed]").value = "";
+  
   });
+ 
 };
